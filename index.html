@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #3498db;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input {
+            padding: 10px;
+            width: 60%;
+            margin-right: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 16px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #results {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #ecf0f1;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+    </style>
+    <title>Course Crawler</title>
+</head>
+<body>
+
+<div class="container">
+    <h1>Course Crawler</h1>
+    <div class="search-container">
+        <label for="searchInput">Search for a course:</label>
+        <input type="text" id="searchInput" placeholder="Enter course name">
+        <button onclick="searchCourses()">Search</button>
+    </div>
+    <div id="results"></div>
+
+</div>
+
+<script>
+    // Fetch data from the API
+    async function fetchData() {
+        try {
+            const response = await fetch('http://localhost:3000/getData'); // Replace 'your_api_endpoint_here' with the actual API endpoint
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    // Function to populate the courses based on the fetched data
+    async function populateCourses() {
+        const courses = await fetchData();
+        const ul = document.createElement("ul");
+        const resultsContainer = document.getElementById("results");
+
+        // Clear previous results
+        resultsContainer.innerHTML = "";
+
+        // Display the results
+        if (courses.length > 0) {
+            courses.forEach(course => {
+                const li = document.createElement("li");
+                li.textContent = `${course.course_name} - ${course.course_discipline}`;
+                ul.appendChild(li);
+            });
+
+            resultsContainer.appendChild(ul);
+        } else {
+            resultsContainer.textContent = "No courses found.";
+        }
+    }
+
+    // Function to handle the search button click
+    async function searchCourses() {
+        const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        const resultsContainer = document.getElementById("results");
+
+        // Fetch data from the API
+        const courses = await fetchData();
+
+        // Clear previous results
+        resultsContainer.innerHTML = "";
+
+        // Filter courses based on the search input
+        const filteredCourses = courses.filter(course => course.course_name.toLowerCase().includes(searchInput));
+
+        // Display the results
+        if (filteredCourses.length > 0) {
+            const ul = document.createElement("ul");
+
+            filteredCourses.forEach(course => {
+                const li = document.createElement("li");
+                li.textContent = `${course.course_name} - ${course.course_discipline}`;
+                ul.appendChild(li);
+            });
+
+            resultsContainer.appendChild(ul);
+        } else {
+            resultsContainer.textContent = "No matching courses found.";
+        }
+    }
+
+    // Initial population of courses
+    populateCourses();
+</script>
+
+</body>
+</html>
