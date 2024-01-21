@@ -3,97 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        h1 {
-            color: #3498db;
-        }
-
-        .search-container {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        input {
-            padding: 10px;
-            width: 60%;
-            margin-right: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px 16px;
-            cursor: pointer;
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background-color: #2980b9;
-        }
-
-        #results {
-            margin-top: 20px;
-            text-align: left;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            background-color: #ecf0f1;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 4px;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <title>Course Crawler</title>
 </head>
-<body>
+<body class="bg-indigo-200">
 
-<div class="container">
-    <h1>Course Crawler</h1>
-    <div class="search-container">
-        <label for="searchInput">Search for a course:</label>
-        <input type="text" id="searchInput" placeholder="Enter course name">
-        <button onclick="searchCourses()">Search</button>
+    <div class="container mx-auto my-8 p-8 bg-white rounded shadow-lg text-center">
+    <h1 class="text-4xl font-bold text-blue-500 mb-6">Course Crawler</h1>
+    <div class="search-container mb-8">
+        <label for="searchInput" class="block mb-2 text-gray-700">Search for a course:</label>
+        <input type="text" id="searchInput" placeholder="Enter course name" class="px-4 py-2 w-2/3 border rounded">
+        <button onclick="searchCourses()" class="px-6 py-2 bg-blue-500 text-white rounded">Search</button>
     </div>
-    <div id="results"></div>
-
+    <div id="results" class="text-left"></div>
 </div>
 
 <script>
     // Fetch data from the API
     async function fetchData() {
         try {
-            const response = await fetch('http://localhost:3000/getData'); // Replace 'your_api_endpoint_here' with the actual API endpoint
+            const response = await fetch('http://localhost:3000/getData');
             const data = await response.json();
             return data;
         } catch (error) {
@@ -104,7 +33,6 @@
     // Function to populate the courses based on the fetched data
     async function populateCourses() {
         const courses = await fetchData();
-        const ul = document.createElement("ul");
         const resultsContainer = document.getElementById("results");
 
         // Clear previous results
@@ -113,12 +41,9 @@
         // Display the results
         if (courses.length > 0) {
             courses.forEach(course => {
-                const li = document.createElement("li");
-                li.textContent = `${course.course_name} - ${course.course_discipline}`;
-                ul.appendChild(li);
+                const courseContainer = createCourseContainer(course);
+                resultsContainer.appendChild(courseContainer);
             });
-
-            resultsContainer.appendChild(ul);
         } else {
             resultsContainer.textContent = "No courses found.";
         }
@@ -140,21 +65,65 @@
 
         // Display the results
         if (filteredCourses.length > 0) {
-            const ul = document.createElement("ul");
-
             filteredCourses.forEach(course => {
-                const li = document.createElement("li");
-                li.textContent = `${course.course_name} - ${course.course_discipline}`;
-                ul.appendChild(li);
+                const courseContainer = createCourseContainer(course);
+                resultsContainer.appendChild(courseContainer);
             });
-
-            resultsContainer.appendChild(ul);
         } else {
             resultsContainer.textContent = "No matching courses found.";
         }
     }
+    function createCourseContainer(course) {
+    const container = document.createElement("div");
+    container.classList.add(
+        "course-container",
+        "bg-e2e8ae",
+        "p-4",
+        "mb-4",
+        "rounded",
+        "border",
+        "border-gray-300",
+        "flex",
+        "items-center", // Align items in a row
+        "justify-between" // Place items at the beginning and end of the container
+    );
 
-    // Initial population of courses
+    const infoContainer = document.createElement("div");
+    infoContainer.classList.add("flex", "flex-col");
+
+    const nameElement = document.createElement("div");
+    nameElement.innerHTML = `<b>${course.course_name}</b>`; // Use HTML to make the text bold
+    infoContainer.appendChild(nameElement);
+
+    const disciplineElement = document.createElement("div");
+    disciplineElement.textContent = course.course_discipline;
+    infoContainer.appendChild(disciplineElement);
+
+    container.appendChild(infoContainer);
+
+    const linkButton = document.createElement("a");
+    linkButton.href = course.link_to_course;
+    linkButton.target = "_blank";
+    linkButton.textContent = "Go To Course";
+    linkButton.classList.add(
+        "text-white",
+        "font-bold",
+        "p-2",
+        "rounded",
+        "bg-blue-500",
+        "hover:blue",
+        "ml-4" // Added margin-left to separate the button from the text
+    );
+    container.appendChild(linkButton);
+
+    // Adding the container to the resultsContainer
+    const resultsContainer = document.getElementById("results");
+    resultsContainer.appendChild(container);
+
+    return container;
+}
+
+
     populateCourses();
 </script>
 
